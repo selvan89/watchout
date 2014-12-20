@@ -16,7 +16,7 @@
 var gameOptions = {
   height: 450,
   width: 700,
-  nEnemies: 30,
+  nEnemies: 10,
   padding: 20
 };
 
@@ -96,29 +96,74 @@ var moveEnemies = function(){
   })
 };
 
-var collision = function(enemies, collidedCallBack){
+var checkCollision = function(enemies, collidedCallBack){
   console.log(enemies[0]);
   var enemiesCopied = Array.prototype.slice.call(enemies[0], 0);
-  enemiesCopied.forEach(function(enemy){
-    // console.log(enemy);
-    var dEnemy = d3.select(enemy);
-    var radiusSum = parseFloat(dEnemy.attr('r')) + ourHero.r;
-    console.log(dEnemy.attr('cx'));
-    var xDiff = parseFloat(dEnemy.attr('cx')) + ourHero.x;
-    var yDiff = parseFloat(dEnemy.attr('cy')) + ourHero.y;
-    console.log('yDiff: ', yDiff, '\nxDiff: ', xDiff)
-    var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-    if(separation < radiusSum){
-      collidedCallBack();
-    }
-  });
+
+  setInterval(function(){
+    var currentScore = +d3.select('.current span').text();
+    d3.select('.current span').text(currentScore+1);
+    enemiesCopied.forEach(function(enemy){
+      var dEnemy = d3.select(enemy);
+      var radiusSum = parseFloat(dEnemy.attr('r')) + parseFloat(d3.select('.hero').attr('r'));
+      // console.log(dEnemy.attr('cx'));
+      var xDiff = parseFloat(dEnemy.attr('cx')) - parseFloat(d3.select('.hero').attr('cx'));
+      var yDiff = parseFloat(dEnemy.attr('cy')) - parseFloat(d3.select('.hero').attr('cy'));
+      // console.log('yDiff: ', yDiff, '\nxDiff: ', xDiff)
+      var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+      // console.log('separation: ',separation);
+      // console.log('radiusSum: ', separation);
+      if(separation < radiusSum){
+        // console.log('collided');
+        collidedCallBack();
+      }
+    });
+  }, 100);
 }
 
-var getEnemyLocation = function(){
-  var enemies = d3.select('svg').selectAll('.enemy');
-  collision(enemies, function(){
-    console.log('hi');
-  });
+var whenCollided = function(){
+  // increase collision count
+  var counter = +d3.select('.collisions span').text();
+  d3.select('.collisions span').text(counter+1);
+  // make current score high score if it's larger than high score
+  if(+d3.select('.high span').text() < +d3.select('.current span').text()){
+    d3.select('.high span').text(d3.select('.current span').text())
+  }
+  d3.select('.current span').text(0);
+  // reset current score
+  // do some flashy whatever thing
+
 }
-setInterval(moveEnemies, 2000);
-getEnemyLocation();
+
+// var getEnemyLocation = function(){
+//   var enemies = d3.select('svg').selectAll('.enemy');
+//   collision(enemies, function(){
+//     console.log('hi');
+//   });
+// }
+
+// var interpolateEnemy = function(singleEnemy){
+//   // for(var i = 0; i < enemies; i++){
+//     // var singleEnemy = d3.select(enemies[i]);
+//     // console.log(singleEnemy);
+//     singleEnemy.transition().tween("mover", function(){
+//       var ix = d3.interpolateString(singleEnemy.attr('cx'), randomPosition(450));
+//       var iy = d3.interpolateString(singleEnemy.attr('cy'), randomPosition(700));
+//       return function(t){
+//         // detectCollision(iy(t), ix(t));
+//         singleEnemy.attr('cx', ix(t)).attr('cy', iy(t));
+//       }
+//     });
+//   // }
+// }
+
+// var detectCollision = function(xCoord, yCoord){
+//   var
+// }
+
+
+setInterval(moveEnemies, 1000);
+// console.log(newEnemyPositions);
+var enemies = d3.selectAll('.enemy');
+setInterval(checkCollision(enemies, whenCollided), 10);
+// setInterval(, 1000);
