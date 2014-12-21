@@ -8,3 +8,17 @@ svg{
   height: 500px;
   width: 500px;
 }
+
+
+.enemy{
+  -webkit-animation: spin linear 4s;
+  -moz-animation: spin linear 4s;
+  animation: spin linear 4s;
+}
+
+@-moz-keyframes spin {100% { -moz-transform: rotate(360deg);}}
+@-webkit-keyframes spin {100% { -webkit-transform: rotate(360deg);}}
+@keyframes spin{ 100% { -webkit-transform: rotate(360deg);
+  transform:rotate(360deg); } }
+
+

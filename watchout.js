@@ -36,41 +36,74 @@ var makePlayer = function(){
   playa.y = 400;
   // playa.angle = 0;
   playa.r = 10;
+  playa.height = 40;
+  playa.width = 40;
   // playa.gameOptions = gameOptions;
   // playa.render = //some render function
 
   return playa;
 };
 
+var dragmove = function(){
+   d3.select('.hero')
+    .attr("x", d3.event.x)
+    .attr("y", d3.event.y)
+}
+var drag = d3.behavior.drag()
+             .on("drag", dragmove);
+
+
 var createEnemies = function(){
   var enemies = [];
   for( var i=0; i< gameOptions.nEnemies; i++ ){
     var enemy = {};
     enemy.id = i;
+    enemy.height = 30;
+    enemy.width = 30;
     enemy.x = Math.random()*450;
     enemy.y = Math.random()*700;
     enemy.color = 'black'
     enemies.push(enemy);
+
   }
   // console.log(enemies);
   return enemies;
 }
 
 var render = function(characters, classType){
+
   var characterCollection = gameBoard.selectAll(classType).data(characters);
-  characterCollection.enter()
-    .append('svg:circle')
+  var c = characterCollection.enter()
+    .append('svg:image')
     .attr('class', classType)
-    .attr('cx', function(character){
+    .attr('x', function(character){
       return character.x;
     })
-    .attr('cy', function(character){
+    .attr('y', function(character){
       return character.y;
     })
-    .attr('r', 20)
+    // .attr('r', 20)
+    .attr('width', function(character){
+      return character.width;
+    })
+    .attr('height', function(character){
+      return character.height;
+    })
     .attr('fill', function(character){
       return character.color;
     });
+
+  if(classType === 'enemy'){
+    c.attr('xlink:href', "http://pixabay.com/static/uploads/photo/2013/07/12/15/21/shuriken-149747_640.png")
+     .attr('transform', 'rotate(0, 360');
+  } else if(classType === 'hero'){
+    c.attr('xlink:href', "http://devhd.files.wordpress.com/2014/01/pro-hero.png")
+      .call(drag);
+  }
+
+
+
+
   //characterCollection.exit().remove();
 }
 
@@ -88,16 +121,15 @@ var randomPosition = function(limit){
 
 var moveEnemies = function(){
   d3.selectAll('.enemy').transition().duration(1000)
-  .attr('cx', function(){
+  .attr('x', function(){
     return randomPosition(450);
   })
-  .attr('cy', function(){
+  .attr('y', function(){
     return randomPosition(700);
   })
 };
 
 var checkCollision = function(enemies, collidedCallBack){
-  console.log(enemies[0]);
   var enemiesCopied = Array.prototype.slice.call(enemies[0], 0);
 
   setInterval(function(){
@@ -106,9 +138,9 @@ var checkCollision = function(enemies, collidedCallBack){
     enemiesCopied.forEach(function(enemy){
       var dEnemy = d3.select(enemy);
       var radiusSum = parseFloat(dEnemy.attr('r')) + parseFloat(d3.select('.hero').attr('r'));
-      // console.log(dEnemy.attr('cx'));
-      var xDiff = parseFloat(dEnemy.attr('cx')) - parseFloat(d3.select('.hero').attr('cx'));
-      var yDiff = parseFloat(dEnemy.attr('cy')) - parseFloat(d3.select('.hero').attr('cy'));
+      // console.log(dEnemy.attr('x'));
+      var xDiff = parseFloat(dEnemy.attr('x')) - parseFloat(d3.select('.hero').attr('x'));
+      var yDiff = parseFloat(dEnemy.attr('y')) - parseFloat(d3.select('.hero').attr('y'));
       // console.log('yDiff: ', yDiff, '\nxDiff: ', xDiff)
       var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
       // console.log('separation: ',separation);
@@ -147,11 +179,11 @@ var whenCollided = function(){
 //     // var singleEnemy = d3.select(enemies[i]);
 //     // console.log(singleEnemy);
 //     singleEnemy.transition().tween("mover", function(){
-//       var ix = d3.interpolateString(singleEnemy.attr('cx'), randomPosition(450));
-//       var iy = d3.interpolateString(singleEnemy.attr('cy'), randomPosition(700));
+//       var ix = d3.interpolateString(singleEnemy.attr('x'), randomPosition(450));
+//       var iy = d3.interpolateString(singleEnemy.attr('y'), randomPosition(700));
 //       return function(t){
 //         // detectCollision(iy(t), ix(t));
-//         singleEnemy.attr('cx', ix(t)).attr('cy', iy(t));
+//         singleEnemy.attr('x', ix(t)).attr('cy', iy(t));
 //       }
 //     });
 //   // }
